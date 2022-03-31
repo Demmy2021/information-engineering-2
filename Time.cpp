@@ -2,24 +2,20 @@
 #include <Time.hpp>
 
 
-Time::Time(int total_t){
+Time::Time(int duration){
 
-        hours = total_t/3600;
-        total_t = total_t - (hours*3600);
-        minutes = total_t/60;
-        total_t = total_t-(minutes*60);
-        seconds = total_t;
-
+        hours = duration/3600;
+        duration = duration - (hours*3600);
+        minutes = duration/60;
+        duration = duration-(minutes*60);
+        seconds = duration;
 }
 
 std::ostream &operator<<(std::ostream &str, Time &other)
 {
-    if(other.hours!=0)
-        str << other.hours << "h:";
-    if(other.minutes!=0)
-        str << other.minutes << "m:";
-    if(other.seconds!=0)
-        str << other.seconds << "s";
+    if(other.hours!=0)   str << other.hours << "h:";
+    if(other.minutes!=0) str << other.minutes << "m:";
+    if(other.seconds!=0) str << other.seconds << "s";
     return str;
 }
 
@@ -44,10 +40,10 @@ Time Time::operator-(const Time &rhs) const {
 }
 
 Time Time::operator*(const int &scalar) const {
-    return Time( ((seconds+(minutes*60)+(hours*3600))*scalar) );
+    return Time((((hours*3600))*scalar+(minutes*60)+seconds) );
 }
 
 Time::operator int(){
-    return int(seconds+(minutes*60)+(hours*3600));
+    return int((hours*3600)+(minutes*60)+seconds);
 }
 

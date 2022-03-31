@@ -3,7 +3,7 @@
 
 class Time{
 public:
-    Time(int total_t = 0);
+    Time(int duration = 0);
 
     Time operator+(const Time &other) const;
     Time operator-(const Time &other) const;
