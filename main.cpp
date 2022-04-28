@@ -25,58 +25,51 @@ public:
         d_bound_  = down  ;
     }
 
-      void moveInDirection(const sf::Time &elapsed, const sf::Keyboard::Key &key)
+    void moveInDirection(const sf::Time &elapsed, const sf::Keyboard::Key &key)
         {
-            float dt = elapsed.asSeconds();
-            if(key == sf::Keyboard::Up)
-            {
-                y_speed_ = -1*abs(y_speed_);
-                            bounce();
-                move(0, y_speed_ * dt);
-            }
-            else if(key == sf::Keyboard::Down)
-            {
-                y_speed_ = abs(y_speed_);
-                            bounce();
-                move(0, y_speed_ * dt);
-            }
-            else if(key == sf::Keyboard::Left)
-            {
-                x_speed_ = -1*abs(x_speed_);
-                            bounce();
-                move(x_speed_ * dt, 0);
-            }
-            else if(key == sf::Keyboard::Right)
-            {
-                x_speed_ = abs(x_speed_);
-                           bounce();
-                move(x_speed_ * dt, 0);
-            }
+        float dt = elapsed.asSeconds();
+        if(key == sf::Keyboard::Up)
+        {
+            y_speed_ = -1*abs(y_speed_);
+                        bounce();
+            move(0, y_speed_ * dt);
+        }
+        else if(key == sf::Keyboard::Down)
+        {
+            y_speed_ = abs(y_speed_);
+                        bounce();
+            move(0, y_speed_ * dt);
+        }
+        else if(key == sf::Keyboard::Left)
+        {
+            x_speed_ = -1*abs(x_speed_);
+                        bounce();
+            move(x_speed_ * dt, 0);
+        }
+        else if(key == sf::Keyboard::Right)
+        {
+            x_speed_ = abs(x_speed_);
+                       bounce();
+            move(x_speed_ * dt, 0);
+        }
         }
         bool isClicked(sf::Vector2i &mouse_position)
         {
             sf::FloatRect rectangle_bounds = getGlobalBounds();
-            if(mouse_position.x >= rectangle_bounds.left &&
-               mouse_position.x <= rectangle_bounds.left + rectangle_bounds.width
-               && mouse_position.y >= rectangle_bounds.top &&
-               mouse_position.y <= rectangle_bounds.top + rectangle_bounds.height)
+            if(mouse_position.x >= rectangle_bounds.left && mouse_position.x <= rectangle_bounds.left + rectangle_bounds.width
+                    && mouse_position.y >= rectangle_bounds.top && mouse_position.y <= rectangle_bounds.top + rectangle_bounds.height)
             {
                 return true;
             }
             return false;
         }
 
-        bool isColorActive(){return active_;}
-           void makeActive(){
-               setFillColor(sf::Color(255,0,0));
-               active_ = true;
-           }
-           void dactivateColor(){
-               setFillColor(sf::Color(0,255,0));
-               active_ = false;
-           }
+        void change_color(sf::RectangleShape &rectangle)
+        {
+            rectangle.setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
+        }
 
- private:
+private:
     int x_speed_ = 0 ;
     int y_speed_ = 0 ;
     int ro_speed_ = 0 ;
@@ -84,7 +77,6 @@ public:
     float r_bound_ = 0;
     float u_bound_ = 0;
     float d_bound_ = 0;
-    float active_ = 0;
 
     void bounce(){
         sf::FloatRect rectangle_bounds = getGlobalBounds();
@@ -95,21 +87,22 @@ public:
 
         if(rectangle_bounds.top + rectangle_bounds.height >= d_bound_){
             y_speed_ = abs(y_speed_) * -1;
-
+            setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
         }
 
         if(rectangle_bounds.left <= l_bound_ ){
            x_speed_ = abs(x_speed_);
-
+           setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
         }
 
         if(rectangle_bounds.left + rectangle_bounds.width >= r_bound_){
             x_speed_ = abs(x_speed_) * -1;
-
+            setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
         }
     }
 
 };
+
 
 int main() {
     // create the window
@@ -121,71 +114,60 @@ int main() {
     rectangle.setFillColor(sf::Color(150, 100, 50));
     rectangle.setSpeed(100, 150, 10);
 
-    std::srand(std::time(nullptr));
+    sf::Clock clock;
 
-    std::vector<CustomRectangleShape> rectangles;
-
-    for(int i=0; i<10; i++)
-    {
-        sf::Vector2f size(120.0, 60.0);
-        sf::Vector2f position(std::rand() % (window.getSize().x - 120), std::rand() % (window.getSize().y - 60));
-        rectangles.emplace_back(CustomRectangleShape(size, position));
-    }
-
-    for(auto &rectangle : rectangles)
-    {
-        rectangle.setFillColor(sf::Color(0, 255, 0));
-        rectangle.setBounds(0, window.getSize().x, 0, window.getSize().y);
-        rectangle.setSpeed(100, 200, 10);
-
-    }
-
-    // run the program as long as the window is open
+   // run the program as long as the window is open
     srand(time(NULL));
-     sf::Clock clock;
     while (window.isOpen()) {
 
         sf::Time elapsed = clock.restart();
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+               {
+                   rectangle.moveInDirection(elapsed, sf::Keyboard::Up);
+               }
+               else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+               {
+                   rectangle.moveInDirection(elapsed, sf::Keyboard::Down);
+               }
+               else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+               {
+                   rectangle.moveInDirection(elapsed, sf::Keyboard::Left);
+               }
+               else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+               {
+                   rectangle.moveInDirection(elapsed, sf::Keyboard::Right);
+               }
 
-     // check all the window's events that were triggered since the last iteration of the loop
+       rectangle.setBounds(0, window.getSize().x, 0, window.getSize().y);
+
+    // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
         while (window.pollEvent(event)) {
 
             // "close requested" event: we close the window
             if (event.type == sf::Event::Closed)
-                       window.close();
-                 }
-            sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
-                  if(event.type == sf::Event::MouseButtonPressed)
                         {
-                      if(event.mouseButton.button == sf::Mouse::Left)
+                            window.close();
+                        }
+                        if(event.type == sf::Event::MouseButtonPressed)
+                        {
+                            if(event.mouseButton.button == sf::Mouse::Left)
+                            {
+                                sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
                                 std::cout << "Mouse clicked: " << mouse_pos.x << ", " << mouse_pos.y << std::endl;
-                                 for(auto &rectangle : rectangles){
-                                            rectangle.dactivateColor();
-                                           if(rectangle.isClicked(mouse_pos))
-                                           rectangle.makeActive();
-                                               }
-                                      }
-                                 sf::Keyboard::Key pressed;
-                                   if(event.type == sf::Event::KeyPressed)
-                                            {
-                                            pressed = event.key.code;
-                                            for(auto &rectangle : rectangles)
-                                                {
-                                             if(rectangle.isColorActive())
-                                                rectangle.moveInDirection(elapsed,pressed);
-                                                }
+                                if(rectangle.isClicked(mouse_pos))
+                                {
+                                   rectangle.change_color(rectangle);
+                                }
+                            }
+                        }
+                    }
+        window.clear(sf::Color::Black);
+        window.draw(rectangle);
 
-                                            }
-
-         window.clear(sf::Color::Black);
-         for(auto &rectangle : rectangles)
-            {
-                window.draw(rectangle);
-            }
-
-            window.display();
-        }
+        // end the current frame
+        window.display();
+    }
 
     return 0;
 }
